@@ -1,0 +1,85 @@
+---
+swagger: "2.0"
+info:
+  version: "v1"
+  title: "PingCastle API"
+paths:
+  /api/Agent/Login:
+    post:
+      tags:
+      - "Agent"
+      summary: "Login and get a token for API"
+      operationId: "ApiAgentLoginPost"
+      consumes:
+      - "application/json-patch+json"
+      - "application/json"
+      - "text/json"
+      - "application/*+json"
+      produces: []
+      parameters:
+      - in: "body"
+        name: "login"
+        description: "The API key previously registered in the application."
+        required: false
+        schema:
+          $ref: "#/definitions/LoginData"
+        x-exportParamName: "Login"
+      responses:
+        "200":
+          description: "token returned"
+        "400":
+          description: "Invalid API key"
+  /api/Agent/SendReport:
+    post:
+      tags:
+      - "Agent"
+      summary: "Import a report"
+      operationId: "ApiAgentSendReportPost"
+      consumes:
+      - "application/json-patch+json"
+      - "application/json"
+      - "text/json"
+      - "application/*+json"
+      produces: []
+      parameters:
+      - in: "body"
+        name: "report"
+        description: "the xml report"
+        required: false
+        schema:
+          $ref: "#/definitions/ReportData"
+        x-exportParamName: "Report"
+      - name: "Authorization"
+        in: "header"
+        description: "access token"
+        required: true
+        type: "string"
+        x-exportParamName: "Authorization"
+      responses:
+        "200":
+          description: "report imported"
+        "400":
+          description: "report is not imported"
+        "401":
+          description: "authentication failed"
+definitions:
+  LoginData:
+    type: "object"
+    properties:
+      apikey:
+        type: "string"
+      location:
+        type: "string"
+    example:
+      apikey: "apikey"
+      location: "location"
+  ReportData:
+    type: "object"
+    properties:
+      filename:
+        type: "string"
+      xmlReport:
+        type: "string"
+    example:
+      filename: "filename"
+      xmlReport: "xmlReport"
