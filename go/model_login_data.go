@@ -10,8 +10,7 @@
 package swagger
 
 type LoginData struct {
-
-	Apikey string `json:"apikey,omitempty"`
+	APIKey string `json:"apikey,omitempty"`
 
 	Location string `json:"location,omitempty"`
 }

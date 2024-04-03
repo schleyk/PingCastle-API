@@ -10,12 +10,29 @@
 package swagger
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
+const (
+	apikey = "test"
+)
+
 func ApiAgentLoginPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	j := json.NewDecoder(r.Body)
+	var d LoginData
+	j.Decode(&d)
+	fmt.Println(d)
+	// todo validate api key
+	if apikey != d.APIKey {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	// APIkey + Location = Token
+	token := fmt.Sprintf("%s:%s", d.APIKey, d.Location)
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(token))
 }
 
 func ApiAgentSendReportPost(w http.ResponseWriter, r *http.Request) {
