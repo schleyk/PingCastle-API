@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -40,9 +41,9 @@ func ApiAgentLoginPost(w http.ResponseWriter, r *http.Request) {
 func ApiAgentSendReportPost(w http.ResponseWriter, r *http.Request) {
 
 	// Check token oder http 400
-	authHeader := r.Header.Get("Authorization")
-	authHeaderParts := strings.SplitN(authHeader, " ", 2)
-	token := authHeaderParts[1]
+	token := r.Header.Get("Authorization")
+	// authHeaderParts := strings.SplitN(authHeader, " ", 2)
+	// token := authHeaderParts[1]
 
 	tokenParts := strings.SplitN(token, ":", 2)
 	apikey := tokenParts[0]
@@ -60,8 +61,9 @@ func ApiAgentSendReportPost(w http.ResponseWriter, r *http.Request) {
 	j.Decode(&d)
 
 	// ablegen von xmlReport in "location-filename" auf Filesystem
-	name := fmt.Sprintf("%s-%s", location, d.Filename)
-	err := os.WriteFile(name, []byte(d.XmlReport), 0644)
+	// todo: add Date
+	name := fmt.Sprintf("%s-%s.xml", location, d.Filename)
+	err := os.WriteFile(filepath.Join(DataPath, name), []byte(d.XmlReport), 0644)
 
 	if err != nil {
 		fmt.Println(err)
