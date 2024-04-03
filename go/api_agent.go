@@ -13,19 +13,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 )
 
 const (
-	apikey = "test"
+	apiWhitelistKey = "test"
+	DataPath        = "data"
 )
 
 func ApiAgentLoginPost(w http.ResponseWriter, r *http.Request) {
 	j := json.NewDecoder(r.Body)
 	var d LoginData
 	j.Decode(&d)
-	fmt.Println(d)
-	// todo validate api key
-	if apikey != d.APIKey {
+	// validate api key
+	if apiWhitelistKey != d.APIKey {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -36,6 +38,37 @@ func ApiAgentLoginPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func ApiAgentSendReportPost(w http.ResponseWriter, r *http.Request) {
+
+	// Check token oder http 400
+	authHeader := r.Header.Get("Authorization")
+	authHeaderParts := strings.SplitN(authHeader, " ", 2)
+	token := authHeaderParts[1]
+
+	tokenParts := strings.SplitN(token, ":", 2)
+	apikey := tokenParts[0]
+	// extrahieren von location
+	location := tokenParts[1]
+
+	if apiWhitelistKey != apikey {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// empfangen von filename und xmlReport
+	j := json.NewDecoder(r.Body)
+	var d ReportData
+	j.Decode(&d)
+
+	// ablegen von xmlReport in "location-filename" auf Filesystem
+	name := fmt.Sprintf("%s-%s", location, d.Filename)
+	err := os.WriteFile(name, []byte(d.XmlReport), 0644)
+
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }

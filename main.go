@@ -10,8 +10,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	// WARNING!
 	// Change this to a fully-qualified import path
@@ -24,6 +26,12 @@ import (
 )
 
 func main() {
+	err := os.MkdirAll(sw.DataPath, 0755)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	log.Printf("Server started")
 
 	router := sw.NewRouter()
